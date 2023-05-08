@@ -146,7 +146,8 @@ def hasBadOpcodeInRange(codearr:list[str], a:int, b:int) -> bool:
 def hasMiddleDependency(codearr:list[str], a:int, b:int) -> bool:
   # off by one?
   for i in range(a, b):
-    if temDependencia(codearr, i, b): return True
+    if temDependencia(codearr, b, i): 
+        return True
   return False
 
 # a b [c {d] (e} f) g
@@ -173,12 +174,14 @@ def reordenar(codearr:list[str], i:int) -> None:
       if hasBadOpcodeInRange(codearr, i+1, j) or hasMiddleDependency(codearr, i+1, j):
         return
       ciclarFatia(codearr, i+1, j)
+      return
   
 
     if atEnd(): return
 
-    opcode = getOpcode(codearr[j])
     j += 1
+    opcode = getOpcode(codearr[j])
+
 
     if atEnd(): return
 
