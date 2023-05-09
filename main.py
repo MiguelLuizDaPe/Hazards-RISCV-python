@@ -170,7 +170,6 @@ def reordenar(codearr:list[str], i:int) -> None:
       return
   
     j += 1
-    opcode = getOpcode(codearr[j])
 
 def reordenarComFow(codearr:list[str]) -> list[str]:  
   for i, code in enumerate(codearr):
