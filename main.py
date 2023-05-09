@@ -41,7 +41,7 @@ def descobreTipo(code:str) -> int:
 
 def fmtInstrucao(ins:str) -> str:
   t = descobreTipo(ins)
-  if t == U_TYPE:
+  if t == U_TYPE:# U-TYPE ou JAL
     return f'[U]:    {ins[:20]}|{getRd(ins)}|{getOpcode(ins)}'
   elif t == I_TYPE: # JALR OU LTYPE OU JTYPE
     return f'[I]:  {ins[:12]}|{getRs1(ins)}|{ins[17:20]}|{getRd(ins)}|{getOpcode(ins)}'
@@ -102,7 +102,7 @@ def bubbleComFow(codearr:list[str]) -> list[str]:
   for i, code in enumerate(codearr):
     arrPronto.append(code)
     tipo = descobreTipo(code)
-
+    
     match tipo:
       case 0 | 1 | 2:
         rd = getRd(code)
@@ -128,8 +128,8 @@ def ciclarFatia(l:list, a:int, b:int):
     b -= 1
   l[a] = tmp
 
-#essa porra da pra mudar
-def hasBadOpcodeInRange(codearr:list[str], a:int, b:int) -> bool:
+#Checa se tem um B-type, jal ou jalr no meio, se tiver não troca pq fode a lógica do programa
+def temProibidoNoMeio(codearr:list[str], a:int, b:int) -> bool:
   BTYPE = '1100011'
   JAL = '1101111'
   JALR = '1100111'
@@ -137,13 +137,13 @@ def hasBadOpcodeInRange(codearr:list[str], a:int, b:int) -> bool:
     op = getOpcode(codearr[i])
     print(f'[{i}] OP:{op} : {codearr[i]}')
     if (op == BTYPE) or (op == JAL) or (op == JALR):
-      print(f'THIS LITTLE BITCH -> {codearr[i]}')
+      print(f'ESSE TA IMPEDINDO A TROCA -> {codearr[i]}')
       return True
 
   return False
 	
 #se codearr[a] == codearr[b] não vai rodar
-def hasMiddleDependency(codearr:list[str], a:int, b:int) -> bool:
+def temDependenciaNoMeio(codearr:list[str], a:int, b:int) -> bool:
   # off by one?
   for i in range(a, b):
     if temDependencia(codearr, b, i): 
@@ -155,35 +155,22 @@ def hasMiddleDependency(codearr:list[str], a:int, b:int) -> bool:
 
 #mudar essa porra
 def reordenar(codearr:list[str], i:int) -> None:
-  BTYPE = '1100011'
-  JAL = '1101111'
-  JALR = '1100111'
 
   # enquanto ele não passar por B-type, jal ou jalr é pra ele continuar procurando até acabar
   j = i+2
-  opcode = getOpcode(codearr[j])
-  atEnd = lambda : (opcode == BTYPE) or (opcode == JAL) or (opcode == JALR) or (j >= len(codearr)) 
 
   while True:
-    if atEnd(): return
 
-    middleType = descobreTipo(codearr[i+2])
     daPraTrocar = not (temDependencia(codearr, i, j) or temDependencia(codearr, i+1, j))
     if daPraTrocar:
       print(f'Cycling {i+1} and {j}')
-      if hasBadOpcodeInRange(codearr, i+1, j) or hasMiddleDependency(codearr, i+1, j):
+      if temProibidoNoMeio(codearr, i+1, j) or temDependenciaNoMeio(codearr, i+1, j):
         return
       ciclarFatia(codearr, i+1, j)
       return
   
-
-    if atEnd(): return
-
     j += 1
     opcode = getOpcode(codearr[j])
-
-
-    if atEnd(): return
 
 def reordenarComFow(codearr:list[str]) -> list[str]:  
   for i, code in enumerate(codearr):
@@ -194,9 +181,9 @@ def reordenarComFow(codearr:list[str]) -> list[str]:
     except IndexError:
       pass
 
-    allowCur = ((tipo == U_TYPE) or (tipo == I_TYPE) or (tipo == R_TYPE))
-    allowNext = ((proxTipo == U_TYPE) or (proxTipo == I_TYPE) or (proxTipo == R_TYPE))
-    if allowCur and allowNext:
+    permiteAtual = ((tipo == U_TYPE) or (tipo == I_TYPE) or (tipo == R_TYPE))
+    permiteProximo = ((proxTipo == U_TYPE) or (proxTipo == I_TYPE) or (proxTipo == R_TYPE))
+    if permiteAtual and permiteProximo:
       rd = getRd(code)
       if rd == '0' * 5:
         continue
@@ -208,7 +195,7 @@ def reordenarComFow(codearr:list[str]) -> list[str]:
     else:
       continue
 
-  # codearr = bubbleComFow(codearr)
+  codearr = bubbleComFow(codearr)
   return codearr
 
 def main():
