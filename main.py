@@ -88,7 +88,7 @@ def bubbleSemFow(codearr:list[str]) -> list[str]:
           if temDependencia(codearr, i, i+1):
             arrPronto.append(NOP)
             arrPronto.append(NOP)
-          elif temDependencia(codearr, i, i+2):
+          elif temDependencia(codearr, i, i+2) and not temDependencia(codearr, i+1, i+2):
             arrPronto.append(NOP)
         except IndexError:
           pass
@@ -203,15 +203,15 @@ def main():
   with open("ex01.txt", "r") as f:
     filedata = arrayficador(f.readlines())
 
-  # print('==== BUBBLE (NO FWD) ====')
-  # fixed = bubbleSemFow(filedata)
-  # for i, ins in enumerate(fixed):
-  #   print(f'{i:3} {fmtInstrucao(ins)}')
+  print('==== BUBBLE (NO FWD) ====')
+  fixed = bubbleSemFow(filedata)
+  for i, ins in enumerate(fixed):
+    print(f'{i:3} {fmtInstrucao(ins)}')
 
-  # print('==== BUBBLE (FWD) ====')
-  # fixed = bubbleComFow(filedata)
-  # for i, ins in enumerate(fixed):
-  #   print(f'{i:3} {fmtInstrucao(ins)}')
+  print('==== BUBBLE (FWD) ====')
+  fixed = bubbleComFow(filedata)
+  for i, ins in enumerate(fixed):
+    print(f'{i:3} {fmtInstrucao(ins)}')
   
   print('==== ORIGINAL ====')
   for i, ins in enumerate(filedata):
