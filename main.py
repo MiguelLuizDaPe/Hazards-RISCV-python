@@ -146,7 +146,7 @@ def temProibidoNoMeio(codearr:list[str], a:int, b:int) -> bool:
 def temDependenciaNoMeio(codearr:list[str], a:int, b:int) -> bool:
   # off by one?
   for i in range(a, b):
-    if temDependencia(codearr, b, i): 
+    if temDependencia(codearr, b, i) or temDependencia(codearr, i, b): 
         return True
   return False
 
